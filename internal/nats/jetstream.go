@@ -1,4 +1,4 @@
-package main
+package nats
 
 import (
 	"L0-wb-intern-task/internal/config"

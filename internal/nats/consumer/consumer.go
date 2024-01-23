@@ -1,4 +1,4 @@
-package nats
+package consumer
 
 import (
 	"L0-wb-intern-task/internal/config"
@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-func ConsumeReviews(js nats.JetStreamContext) {
+func ConsumeOrders(js nats.JetStreamContext) {
 	config, err := config.LoadConfig("config/config.json")
 	if err != nil {
 		log.Fatal("Error loading configuration:", err)
@@ -29,9 +29,6 @@ func ConsumeReviews(js nats.JetStreamContext) {
 		}
 
 		log.Printf("Consumer  =>  Subject: %s  -  ID: %s  -  CustomerID: %s", m.Subject, order.OrderID, order.CustomerID)
-
-		// send answer via JetStream using another subject if you need
-		// js.Publish(config.SubjectNameReviewAnswered, []byte(review.Id))
 	})
 
 	if err != nil {

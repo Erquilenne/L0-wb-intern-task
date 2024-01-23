@@ -12,7 +12,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-func PublishReviews(js nats.JetStreamContext) {
+func PublishOrders(js nats.JetStreamContext) {
 	orders, err := getOrders()
 	if err != nil {
 		log.Println(err)
@@ -30,14 +30,13 @@ func PublishReviews(js nats.JetStreamContext) {
 		r := rand.Intn(1500)
 		time.Sleep(time.Duration(r) * time.Millisecond)
 
-		reviewString, err := json.Marshal(oneOrder)
+		orderString, err := json.Marshal(oneOrder)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		// publish to REVIEWS.rateGiven subject
-		_, err = js.Publish(config.Nats.SubjectNameOrderCreated, reviewString)
+		_, err = js.Publish(config.Nats.SubjectNameOrderCreated, orderString)
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -47,7 +46,7 @@ func PublishReviews(js nats.JetStreamContext) {
 }
 
 func getOrders() ([]models.Order, error) {
-	rawOrder, _ := ioutil.ReadFile("./reviews.json")
+	rawOrder, _ := ioutil.ReadFile("./orders.json")
 	var orderObj []models.Order
 	err := json.Unmarshal(rawOrder, &orderObj)
 

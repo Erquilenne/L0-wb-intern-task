@@ -10,9 +10,9 @@ import (
 )
 
 func ConsumeOrders(js nats.JetStreamContext) {
-	config, err := config.LoadConfig("config/config.json")
-	if err != nil {
-		log.Fatal("Error loading configuration:", err)
+	config, loadConfigErr := config.LoadConfig("config/config.json")
+	if loadConfigErr != nil {
+		log.Fatal("Error loading configuration:", loadConfigErr)
 	}
 	_, err := js.Subscribe(config.Nats.SubjectNameOrderCreated, func(m *nats.Msg) {
 		err := m.Ack()

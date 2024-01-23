@@ -2,10 +2,14 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
-	"os"
+	"sync"
+
+	"L0-wb-intern-task/internal/config"
+	"L0-wb-intern-task/internal/nats"
+	"L0-wb-intern-task/internal/nats/consumer"
+	"L0-wb-intern-task/internal/nats/publisher"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -13,38 +17,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type DatabaseConfig struct {
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	User     string `json:"user"`
-	Password string `json:"password"`
-	DBName   string `json:"dbname"`
-}
-
-type Config struct {
-	Database DatabaseConfig `json:"database"`
-}
-
-func loadConfig(filename string) (Config, error) {
-	var config Config
-
-	file, err := os.Open(filename)
-	if err != nil {
-		return config, err
-	}
-	defer file.Close()
-
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&config)
-	if err != nil {
-		return config, err
-	}
-
-	return config, nil
-}
-
 func main() {
-	config, err := loadConfig("config/config.json")
+	config, err := config.LoadConfig("config/config.json")
 	if err != nil {
 		log.Fatal("Error loading configuration:", err)
 	}
@@ -76,4 +50,30 @@ func main() {
 	}
 
 	fmt.Println("Migrations applied successfully!")
+	log.Println("Starting nats")
+
+	js, err := nats.JetStreamInit()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// Let's assume that publisher and consumer are services running on different servers.
+	// So run publisher and consumer asynchronously to see how it works
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		publisher.PublishOrders(js)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		consumer.ConsumeOrders(js)
+	}()
+
+	wg.Wait()
+
+	log.Println("Exit...")
 }

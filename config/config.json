@@ -5,6 +5,11 @@
       "user": "admin",
       "password": "admin",
       "dbname": "data"
+    },
+    "nats": {
+      "stream_name": "ORDERS",
+      "stream_subjects": "ORDERS.*",
+      "subject_name_order_created": "ORDERS.rateGiven",
+      "subject_name_order_answered": "ORDERS.rateAnswer"
     }
   }
-  

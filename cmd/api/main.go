@@ -1,20 +1,20 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	"sync"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"L0-wb-intern-task/internal/config"
-	"L0-wb-intern-task/internal/nats"
 	"L0-wb-intern-task/internal/nats/consumer"
 	"L0-wb-intern-task/internal/nats/publisher"
+	"L0-wb-intern-task/internal/storage/pgsql"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"github.com/nats-io/nats.go"
 )
 
 func main() {
@@ -26,54 +26,37 @@ func main() {
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		config.Database.Host, config.Database.Port, config.Database.User, config.Database.Password, config.Database.DBName)
 
-	db, err := sql.Open("postgres", connStr)
+	db, err := pgsql.NewDatabase(connStr)
 	if err != nil {
 		log.Fatal("Error opening database connection:", err)
 	}
 	defer db.Close()
 
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
-	if err != nil {
-		log.Fatal("Error creating database driver instance:", err)
-	}
+	db.MakeMigrations()
 
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://./migrations",
-		"postgres", driver)
-	if err != nil {
-		log.Fatal("Error creating migration instance:", err)
-	}
-
-	err = m.Up()
-	if err != nil && err != migrate.ErrNoChange {
-		log.Fatal("Error applying migrations:", err)
-	}
-
-	fmt.Println("Migrations applied successfully!")
 	log.Println("Starting nats")
-
-	js, err := nats.JetStreamInit()
+	nc, err := nats.Connect(nats.DefaultURL)
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatal("Error connecting to NATS:", err)
 	}
-	// Let's assume that publisher and consumer are services running on different servers.
-	// So run publisher and consumer asynchronously to see how it works
-	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		publisher.PublishOrders(js)
-	}()
+	sub, err := consumer.SubscribeAndConsume(db, nc, config.Nats.StreamName)
+	if err != nil {
+		log.Fatal("Error subscribing and consuming orders:", err)
+	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		consumer.ConsumeOrders(js)
-	}()
+	publisher.PublishOrders(nc)
 
-	wg.Wait()
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
-	log.Println("Exit...")
+	for {
+		select {
+		case <-stop:
+			log.Println("Received signal. Exiting...")
+			sub.Unsubscribe()
+			nc.Close()
+			return
+		}
+	}
 }

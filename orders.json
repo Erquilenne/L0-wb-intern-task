@@ -14,7 +14,7 @@
         },
         "payment": {
           "transaction": "b563feb7b2b84b6test",
-          "request_id": "",
+          "request_id": "54545",
           "currency": "USD",
           "provider": "wbpay",
           "amount": 1817,
@@ -40,7 +40,7 @@
           }
         ],
         "locale": "en",
-        "internal_signature": "",
+        "internal_signature": "апрап",
         "customer_id": "test",
         "delivery_service": "meest",
         "shardkey": "9",
@@ -63,7 +63,7 @@
         },
         "payment": {
           "transaction": "b563ffb7b2b84b6test",
-          "request_id": "",
+          "request_id": "34445",
           "currency": "USD",
           "provider": "wbpay",
           "amount": 1817,
@@ -89,7 +89,7 @@
           }
         ],
         "locale": "en",
-        "internal_signature": "",
+        "internal_signature": "арарп",
         "customer_id": "test",
         "delivery_service": "meest",
         "shardkey": "9",
@@ -112,7 +112,7 @@
         },
         "payment": {
           "transaction": "b563aeb7b2b84b6test",
-          "request_id": "",
+          "request_id": "123123",
           "currency": "USD",
           "provider": "wbpay",
           "amount": 1817,
@@ -138,7 +138,7 @@
           }
         ],
         "locale": "en",
-        "internal_signature": "",
+        "internal_signature": "арпрап",
         "customer_id": "test",
         "delivery_service": "meest",
         "shardkey": "9",
@@ -161,7 +161,7 @@
         },
         "payment": {
           "transaction": "b563feb7e2b84b6test",
-          "request_id": "",
+          "request_id": "123123",
           "currency": "USD",
           "provider": "wbpay",
           "amount": 1817,
@@ -187,7 +187,7 @@
           }
         ],
         "locale": "en",
-        "internal_signature": "",
+        "internal_signature": "апррап",
         "customer_id": "test",
         "delivery_service": "meest",
         "shardkey": "9",
@@ -210,7 +210,7 @@
         },
         "payment": {
           "transaction": "b563feba7b2b84b6test",
-          "request_id": "",
+          "request_id": "23423",
           "currency": "USD",
           "provider": "wbpay",
           "amount": 1817,
@@ -236,7 +236,7 @@
           }
         ],
         "locale": "en",
-        "internal_signature": "",
+        "internal_signature": "арпарп",
         "customer_id": "test",
         "delivery_service": "meest",
         "shardkey": "9",

@@ -20,12 +20,12 @@ CREATE TABLE orders (
     payment_delivery_cost INT NOT NULL,
     payment_goods_total INT NOT NULL,
     payment_custom_fee INT NOT NULL,
-    locale VARCHAR(10) NOT NULL,
-    internal_signature VARCHAR(255) NOT NULL,
+    locale VARCHAR(10),
+    internal_signature VARCHAR(255),
     customer_id VARCHAR(255) NOT NULL,
-    delivery_service VARCHAR(255) NOT NULL,
+    delivery_service VARCHAR(255),
     shardkey VARCHAR(255) NOT NULL,
-    sm_id INT NOT NULL,
+    sm_id INT,
     date_created TIMESTAMP NOT NULL,
     oof_shard VARCHAR(255) NOT NULL
 );

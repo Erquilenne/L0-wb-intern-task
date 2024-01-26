@@ -12,7 +12,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-func PublishOrders(js nats.JetStreamContext) {
+func PublishOrders(nc *nats.Conn) {
 	orders, err := getOrders()
 	if err != nil {
 		log.Println(err)
@@ -36,11 +36,11 @@ func PublishOrders(js nats.JetStreamContext) {
 			continue
 		}
 
-		_, err = js.Publish(config.Nats.SubjectNameOrderCreated, orderString)
+		err = nc.Publish(config.Nats.StreamName, []byte(orderString))
 		if err != nil {
 			log.Println(err)
 		} else {
-			log.Printf("Publisher  =>  Message: %d\n", oneOrder.OrderID)
+			log.Println("Publisher send message")
 		}
 	}
 }

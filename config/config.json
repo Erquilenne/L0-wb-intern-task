@@ -8,8 +8,7 @@
     },
     "nats": {
       "stream_name": "ORDERS",
-      "stream_subjects": "ORDERS.*",
-      "subject_name_order_created": "ORDERS.rateGiven",
-      "subject_name_order_answered": "ORDERS.rateAnswer"
+      "cluster_id": "test-nats",
+      "client_id": "client-123"
     }
   }

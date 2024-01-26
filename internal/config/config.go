@@ -14,10 +14,9 @@ type DatabaseConfig struct {
 }
 
 type NatsConfig struct {
-	StreamName               string `json:"stream_name"`
-	StreamSubjects           string `json:"stream_subjects"`
-	SubjectNameOrderCreated  string `json:"subject_name_order_created"`
-	SubjectNameOrderAnswered string `json:"subject_name_order_answered"`
+	StreamName string `json:"stream_name"`
+	ClusterId  string `json:"cluster_id"`
+	ClientId   string `json:"client_id"`
 }
 
 type Config struct {

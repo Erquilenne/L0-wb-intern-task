@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Form</title>
+</head>
+<body>
+    <form id="orderForm">
+        <label for="orderId">Order ID:</label>
+        <input type="text" id="orderId" name="orderId" required>
+
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        function submitForm() {
+            var orderId = document.getElementById("orderId").value;
+
+            fetch(`/order/${orderId}`, {
+                method: "GET"
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+</body>
+</html>

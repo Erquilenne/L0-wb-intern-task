@@ -95,12 +95,7 @@ func (d *Database) SaveOrder(order models.Order) error {
 
 func (d *Database) GetOrder(orderID int) (*models.Order, error) {
 	row := d.db.QueryRow(`
-		SELECT
-			order_id, order_uid, track_number, entry, delivery_name, delivery_phone, delivery_zip,
-			delivery_city, delivery_address, delivery_region, delivery_email, payment_transaction,
-			payment_request_id, payment_currency, payment_provider, payment_amount, payment_dt,
-			payment_bank, payment_delivery_cost, payment_goods_total, payment_custom_fee, locale,
-			internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard
+		SELECT *
 		FROM orders
 		WHERE order_id = $1`,
 		orderID,
@@ -127,8 +122,7 @@ func (d *Database) GetOrder(orderID int) (*models.Order, error) {
 	order.Payment = *payment
 
 	rows, err := d.db.Query(`
-		SELECT
-			item_id, chrt_id, track_number, price, rid, name, sale, size, total_price, nm_id, brand, status
+		SELECT *
 		FROM order_items
 		WHERE order_id = $1`,
 		orderID,
@@ -176,4 +170,79 @@ func (d *Database) MakeMigrations() {
 	}
 
 	log.Println("Migrations applied successfully!")
+}
+
+func (d *Database) GetAllOrders() ([]models.Order, error) {
+	rows, err := d.db.Query(`
+		SELECT * FROM orders`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []models.Order
+
+	for rows.Next() {
+		order := models.Order{}
+		delivery := models.Delivery{}
+		payment := models.Payment{}
+		var paymentDTUnix time.Time
+		log.Println("paymentDT - ", payment.PaymentDT)
+		err := rows.Scan(
+			&order.OrderID, &order.OrderUID, &order.TrackNumber, &order.Entry,
+			&delivery.Name, &delivery.Phone, &delivery.Zip, &delivery.City, &delivery.Address,
+			&delivery.Region, &delivery.Email, &payment.Transaction, &payment.RequestID, &payment.Currency,
+			&payment.Provider, &payment.Amount, &paymentDTUnix, &payment.Bank, &payment.DeliveryCost,
+			&payment.GoodsTotal, &payment.CustomFee, &order.Locale, &order.InternalSignature,
+			&order.CustomerID, &order.DeliveryService, &order.ShardKey, &order.SMID, &order.DateCreated,
+			&order.OofShard,
+		)
+		if err != nil {
+			log.Println("ошибка в orders")
+			return nil, err
+		}
+		log.Printf("Тип переменной: %T\n", paymentDTUnix)
+		payment.PaymentDT = paymentDTUnix.Unix()
+		order.Delivery = delivery
+		order.Payment = payment
+
+		order.Items, err = d.getOrderItems(order.OrderID)
+		if err != nil {
+			log.Println("ошибка в order_items")
+			return nil, err
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
+
+func (d *Database) getOrderItems(orderID int) ([]models.OrderItem, error) {
+	rows, err := d.db.Query(`
+		SELECT * FROM order_items
+		WHERE order_id = $1`,
+		orderID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []models.OrderItem
+
+	for rows.Next() {
+		item := models.OrderItem{}
+		err := rows.Scan(
+			&item.ItemID, &item.OrderID, &item.ChrtID, &item.TrackNumber, &item.Price, &item.RID,
+			&item.Name, &item.Sale, &item.Size, &item.TotalPrice, &item.NmID, &item.Brand, &item.Status,
+		)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	return items, nil
 }

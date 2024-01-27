@@ -60,8 +60,8 @@ func main() {
 	flag.Parse()
 
 	if *publishFlag {
-		publisher.PublishOrders(nc)
 		log.Println("Publishing orders...")
+		publisher.PublishOrders(nc)
 	} else {
 		log.Println("Publish flag is not set. Skipping publishing orders.")
 	}

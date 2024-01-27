@@ -188,7 +188,6 @@ func (d *Database) GetAllOrders() ([]models.Order, error) {
 		delivery := models.Delivery{}
 		payment := models.Payment{}
 		var paymentDTUnix time.Time
-		log.Println("paymentDT - ", payment.PaymentDT)
 		err := rows.Scan(
 			&order.OrderID, &order.OrderUID, &order.TrackNumber, &order.Entry,
 			&delivery.Name, &delivery.Phone, &delivery.Zip, &delivery.City, &delivery.Address,
@@ -202,7 +201,6 @@ func (d *Database) GetAllOrders() ([]models.Order, error) {
 			log.Println("ошибка в orders")
 			return nil, err
 		}
-		log.Printf("Тип переменной: %T\n", paymentDTUnix)
 		payment.PaymentDT = paymentDTUnix.Unix()
 		order.Delivery = delivery
 		order.Payment = payment

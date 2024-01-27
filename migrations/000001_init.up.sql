@@ -1,6 +1,6 @@
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    order_uid VARCHAR(255) NOT NULL,
+    order_uid VARCHAR(255) UNIQUE NOT NULL,
     track_number VARCHAR(255) NOT NULL,
     entry VARCHAR(255) NOT NULL,
     delivery_name VARCHAR(255) NOT NULL,
